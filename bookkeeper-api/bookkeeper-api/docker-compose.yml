@@ -1,0 +1,32 @@
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: bookkeeper-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: bookkeeper_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bookkeeper-net
+
+  api-service:
+    build: .
+    container_name: bookkeeper-api-app
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.datasource.url=jdbc:postgresql://postgres-db:5432/bookkeeper_db
+    depends_on:
+      - postgres-db
+    networks:
+      - bookkeeper-net
+
+volumes:
+  postgres_data:
+
+networks:
+  bookkeeper-net:
